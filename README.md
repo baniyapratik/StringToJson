@@ -8,6 +8,7 @@
  * Written By: Pratik Baniya
  * */
  
+ Core content is in MyProject.
  
  The idea here to have a Applicant class is that after we read the file, it would be 
  convinient for any user to ingest the data and make modifications accordingly before 
