@@ -21,6 +21,8 @@
  - StringToJson
  - StringToJsonTest
  
+ Support Library used here is Gson.
+ 
  Below is a sample output from the application:
  
  The file is valid and ready to be parsed!
