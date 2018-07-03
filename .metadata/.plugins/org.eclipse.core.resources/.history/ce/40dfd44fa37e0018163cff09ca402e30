@@ -1,0 +1,136 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+public class StringToJson {
+	
+	//Variable Declaration
+	String filePath;
+	
+	/** Construct a StringToJson Object**/
+	StringToJson(String newPath){ filePath = newPath; }
+	
+	/*
+	 * This method is used to check if a file is valid.
+	 * Here we are considering if the file exists, if the file is empty and if the file can be read
+	 * 
+	 * @param file It is file object that is ought to be validated
+	 * @return boolean True or False
+	 * */
+	public boolean initial_file_validation (File file) {
+		
+		if (file.exists() && file.length()>0 && file.canRead()) {
+			System.out.println("The file is valid and ready to be parsed!");
+			return true;
+		}
+		else {
+			System.out.println("The file is not valid!");
+			return false;
+		}
+	}
+	
+	/*
+	 * This method is responsible to display the output of JSON Object
+	 * */
+	public void display_json_obj(String json_context) {
+		
+		System.out.println(json_context);
+	}
+	
+	/*
+	 * This method is responsible to read a file and return Array of Applicants
+	 * 
+	 *  @return applicants
+	 * */
+	public List<Applicant> read_applicants_file() throws IOException {
+		//Local Variables
+		String file_line;
+		String delimeter="!";
+		List<Applicant> applicantList = new ArrayList<Applicant>();
+		
+		//File reader
+		File file = new File(filePath);
+		FileReader fileReader = new FileReader(file);
+		BufferedReader bufferedReader = new BufferedReader(fileReader);
+		
+		//call initial file validation
+		Boolean result = initial_file_validation(file);
+		
+		Applicant newApplicant = new Applicant();
+		//Read data from a file
+		while (( file_line = bufferedReader.readLine()) != null) {
+			if(file_line.indexOf('!')>=0) {
+				applicantList.add(newApplicant);
+				newApplicant = new Applicant();
+				continue;
+			}
+			parse_lines(file_line, newApplicant);
+			
+	    }
+		return applicantList;
+	}
+	/*
+	 * The objective of this method is to 
+	 * */
+	public void parse_lines(String file_line, Applicant newApplicant ) {
+		
+		//Local Variables
+		String[] parts = file_line.split(":");
+		String key = parts[0].trim();
+		String value = parts[1].trim();
+		List<String> certifications = new ArrayList<String>();
+		String[] splitStr = value.split(","); 
+		
+		//check if the split line has more than one value. This is if user has more than one certification.
+		if (splitStr.length >1) {
+
+			for(String certs : splitStr) {
+				certifications.add(certs.trim());
+			}
+			newApplicant.setCertifications(certifications);
+		}
+		else {
+			//map the key and set the object value accordingly
+			switch(key) {
+			case "Name": 
+							newApplicant.setName(value);
+							break;
+			case "City": 	
+							newApplicant.setCity(value);
+			 			 	break;
+			case "Address": 
+							newApplicant.setAddress(value);
+							break;
+			case "Zip":
+							newApplicant.setZip(value);
+							break;
+			case "Certifications":
+							certifications.add(value);
+							newApplicant.setCertifications(certifications);
+							break;		
+			}
+				
+		}	
+	}
+	
+	public String convert_object_to_json(String file_line ) throws JsonGenerationException, JsonMappingException, IOException {
+		ObjectMapper mapper = new ObjectMapper(); 
+		List<Applicant> applicantList = read_applicants_file();
+		String arrayToJson = mapper.writeValueAsString(applicantList);
+		
+		return arrayToJson;
+	
+	}	
+	
+	public static void main(String[] args) throws IOException {
+		String filePath = "/Users/prabaniy/Documents/new_file.txt";
+		StringToJson myObj = new StringToJson(filePath);
+		myObj.read_applicants_file();	
+	}	
+}

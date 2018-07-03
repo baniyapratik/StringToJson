@@ -1,0 +1,39 @@
+
+public class Applicant {
+	private String Name;
+	private String Address;
+	private String City;
+	private String Zip;
+	private String[] Certifications;
+	
+	public String getName() {
+		return Name;
+	}
+	public void setName(String name) {
+		Name = name;
+	}
+	public String getAddress() {
+		return Address;
+	}
+	public void setAddress(String address) {
+		Address = address;
+	}
+	public String getCity() {
+		return City;
+	}
+	public void setCity(String city) {
+		City = city;
+	}
+	public String getZip() {
+		return Zip;
+	}
+	public void setZip(String zip) {
+		Zip = zip;
+	}
+	public String[] getCertifications() {
+		return Certifications;
+	}
+	public void setCertifications(String[] certifications) {
+		Certifications = certifications;
+	}
+}

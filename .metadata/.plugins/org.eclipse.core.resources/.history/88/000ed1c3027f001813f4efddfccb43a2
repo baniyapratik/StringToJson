@@ -1,0 +1,14 @@
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
+class StringToJsonTest {
+	String test_filePath = "/Users/prabaniy/Documents/new_file.txt";
+	StringToJson my_test_obj = new StringToJson(test_filePath);
+	
+	@Test
+	void test() {
+		fail("Not yet implemented");
+	}
+
+}

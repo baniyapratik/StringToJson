@@ -1,0 +1,238 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+public class StringToJson {
+	
+	//Variable Declaration
+	String filePath;
+	
+	/** Construct a StringToJson Object**/
+	StringToJson(String newPath){ filePath = newPath; }
+	
+	/*
+	 * This method is used to check if a file is valid.
+	 * Here we are considering if the file exists, if the file is empty and if the file can be read
+	 * 
+	 * @param file It is file object that is ought to be validated
+	 * @return boolean True or False
+	 * */
+	public boolean initial_file_validation (File file) {
+		
+		if (file.exists() && file.length()>0 && file.canRead()) {
+			System.out.println("The file is valid and ready to be parsed!");
+			return true;
+		}
+		else {
+			System.out.println("The file is not valid!");
+			return false;
+		}
+	}
+	
+	/*
+	 * This method is responsible to display the output of JSON Object
+	 * */
+	public String display_json_obj() throws  IOException {
+		JsonArray json_context = convert_object_to_json();
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		JsonParser jp = new JsonParser();
+		JsonElement je = jp.parse(json_context.toString());
+		String prettyJsonString = gson.toJson(je);
+		System.out.println(prettyJsonString);
+		return prettyJsonString;
+	}
+	
+	/*
+	 * This method is responsible to read a file and return Array of Applicants
+	 * 
+	 *  @return applicants
+	 * */
+	public List<Applicant> read_applicants_file() throws IOException {
+		//Local Variables
+		String file_line;
+		String delimeter="!";
+		List<Applicant> applicantList = new ArrayList<Applicant>();
+		
+		//File reader
+		File file = new File(filePath);
+		FileReader fileReader = new FileReader(file);
+		@SuppressWarnings("resource")
+		BufferedReader bufferedReader = new BufferedReader(fileReader);
+		
+		//call initial file validation
+		Boolean result = initial_file_validation(file);
+		if(result == false) {
+			throw new RuntimeException("The file is not valid to further process. Please check the file.");
+		}
+		
+		Applicant newApplicant = new Applicant();
+		//Read data from a file
+		while (( file_line = bufferedReader.readLine()) != null) {
+			if(file_line.indexOf(delimeter)>=0) {
+				applicantList.add(newApplicant);
+				newApplicant = new Applicant();
+				continue;
+			}
+			parse_lines(file_line, newApplicant);
+			
+	    }
+		applicantList.add(newApplicant);
+		return applicantList;
+	}
+	/*
+	 * The objective of this method is to parse the lines and set the objects.
+	 * It splits the based on the ":" delimiter to separate key and value.
+	 * */
+	public void parse_lines(String file_line, Applicant newApplicant ) {
+		
+		//Local Variables
+		String[] parts = file_line.split(":");
+		String key = parts[0].trim();
+		String value = parts[1].trim();
+		List<String> certifications = new ArrayList<String>();
+		String[] splitStr = value.split(","); 
+		
+		//check if the split line has more than one value. This is if user has more than one certification.
+		if (splitStr.length >1) {
+
+			for(String certs : splitStr) {
+				certifications.add(certs.trim());
+			}
+			newApplicant.setCertifications(certifications);
+		}
+		else {
+			//map the key and set the object value accordingly
+			switch(key) {
+			case "Name": 
+							newApplicant.setName(value);
+							break;
+			case "City": 	
+							newApplicant.setCity(value);
+			 			 	break;
+			case "Address": 
+							newApplicant.setAddress(value);
+							break;
+			case "Zip":
+							newApplicant.setZip(value);
+							break;
+			case "Certifications":
+							certifications.add(value);
+							newApplicant.setCertifications(certifications);
+							break;		
+			}
+				
+		}	
+	}
+	/*
+	 *This method is used to convert the Object to JSON String
+	 * */
+	public JsonArray convert_object_to_json() throws  IOException {
+		
+		//local variables
+		JsonArray certs = new JsonArray();
+		JsonArray arryToJson = new JsonArray();
+		List<Applicant> applicantList = read_applicants_file();
+		List<String> certifications ;
+		
+		//Iterating if there are more than one applicants
+		for (Applicant applicant: applicantList) {
+			JsonObject person = new JsonObject();
+			person.addProperty("Name",applicant.getName());
+			person.addProperty("Address",applicant.getAddress());
+			person.addProperty("City",applicant.getCity());
+			person.addProperty("Zip",applicant.getZip());
+			certifications = applicant.getCertifications();
+			
+			if (certifications.size() >=1) {
+				for(String myCerts : certifications) {
+					certs.add(myCerts.trim());
+				}
+				person.add("Certifications", certs);
+			} 
+			arryToJson.add(person);
+		}
+		return arryToJson;
+	}	
+	
+	public static void main(String[] args)  {
+		//Sample path 1
+		String filePath_1 = "/Users/prabaniy/Documents/new_file.txt";
+		StringToJson myObj_1 = new StringToJson(filePath_1);
+		
+		//Sample path2
+		String filePath_2 = "/Users/prabaniy/Documents/multiple_applicants.txt";
+		StringToJson myObj_2 = new StringToJson(filePath_2);
+		
+		try {
+			System.out.println("\nThis is my output 1 from single applicants file\n");
+			myObj_1.display_json_obj();
+			System.out.println("\nThis is my output 2 from multiple applicants file\n");
+			myObj_2.display_json_obj();
+		}
+		catch(Exception e) {
+			System.out.println("StringToJson Module has encountered an Exception.\nPlease check the following trace to debug: " + e);
+		}
+	}	
+	
+}//End of StringToJson class
+
+/*
+ * Output Generated from running the application:
+ * 
+ * This is my output 1 from single applicants file
+
+The file is valid and ready to be parsed!
+[
+{
+"Name": "Pratik Baniya",
+"Address": "123 Test Lane",
+"City": "Oklahoma City",
+"Zip": "73160",
+"Certifications": [
+  "UAS Pilot I",
+  "UAS Pilot II",
+  "UAS Support Crew V"
+]
+}
+]
+
+This is my output 2 from multiple applicants file
+
+The file is valid and ready to be parsed!
+[
+{
+"Name": "Pratik Baniya",
+"Address": "123 Test Lane",
+"City": "Oklahoma City",
+"Zip": "73160",
+"Certifications": [
+  "UAS Pilot I",
+  "UAS Pilot II",
+  "UAS Support Crew V",
+  "UAS Pilot I"
+]
+},
+{
+"Name": "New Emp",
+"Address": "123 Test Lane",
+"City": "california",
+"Zip": "94041",
+"Certifications": [
+  "UAS Pilot I",
+  "UAS Pilot II",
+  "UAS Support Crew V",
+  "UAS Pilot I"
+]
+}
+]
+
+ * */

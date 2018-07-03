@@ -1,0 +1,41 @@
+import java.lang.reflect.Array;
+
+public class Applicant {
+	private String name;
+	private String address;
+	private String city;
+	private String zip;
+	private Array[] certifications;
+	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getCity() {
+		return city;
+	}
+	public void setCity(String city) {
+		this.city = city;
+	}
+	public String getZip() {
+		return zip;
+	}
+	public void setZip(String zip) {
+		this.zip = zip;
+	}
+	public Array[] getCertifications() {
+		return certifications;
+	}
+	public void setCertifications(Array[] certifications) {
+		this.certifications = certifications;
+	}
+
+}
